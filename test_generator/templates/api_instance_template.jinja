@@ -1,0 +1,39 @@
+from requests import Session
+from requests.auth import HTTPBasicAuth
+import logging
+import r2c
+
+logger = logging.getLogger(__name__)
+
+
+class ApiInstance(Session):
+    def __init__(self, apikey=None, bearer=None, creds=None, new_header={}, cookie=None, curl_log=False):
+        super().__init__()
+        # Clear headers to prevent implicit addition
+        self.headers = {}
+        self.curl_log = curl_log
+        if apikey:
+            self.headers.update({"x-dm-api-key": apikey})
+        if bearer:
+            self.headers.update({"Authorization": f"Bearer {bearer}"})
+        if creds:
+            self.auth = HTTPBasicAuth(creds[0], creds[1])
+        if cookie:
+            self.headers.update({"Cookie": cookie})
+
+        if new_header:
+            self.headers.update(new_header)
+
+    def request(self, method, url, **kwargs):
+        response = super().request(method, url, **kwargs)
+        if self.curl_log:
+            try:
+                logger.debug(r2c.parse(response))
+            except Exception:
+                # Can't handle binary calls
+                pass
+        logger.info(f"Request {response.request.method} {response.request.url}")
+        logger.debug(f"Request headers {response.request.headers}")
+        logger.info(f"Response {response.status_code}")
+        logger.debug(f"Response headers {response.headers}")
+        return response

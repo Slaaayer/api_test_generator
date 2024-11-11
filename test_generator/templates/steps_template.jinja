@@ -1,0 +1,23 @@
+from methods.{{ file_name }} import {{ class_name }}
+
+api_obj = {{ class_name }}()
+
+
+{% for method in methods %}
+def {{ method.name }}Step():
+    {% if method.params %}
+    {% for param in method.params %}
+    {% if method.params == 'body' %}
+    body = {
+        {%- for param in method.body -%}
+        "{{ param }}": "{{ method.body[param] }}"{%- if not loop.last -%},{%- endif %}
+        {% endfor %}}
+    {% else %}
+    {{ param.name }} = "{{ param.name }}"
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    api_obj.{{ method.name }}({% if method.params %}{{ method.params | map(attribute='name') | join(', ') }}{% endif %})
+    api_obj.raise_for_status()
+
+{% endfor %}

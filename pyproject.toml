@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "api-test-generator"
+version = "0.1.0"
+description = ""
+authors = ["Ayoub BOUNAGA <ayoubebounaga@gmail.com>"]
+readme = "README.md"
+packages = [{include = "test_generator"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.32.3"
+jsonschema = "^4.23.0"
+jinja2 = "^3.1.4"
+r2c = "^0.0.1"
+requests-to-curl = "^1.1.0"
+ruff = "^0.7.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

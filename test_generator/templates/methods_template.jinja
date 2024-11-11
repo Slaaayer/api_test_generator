@@ -1,0 +1,44 @@
+# Import necessary libraries
+from api_instance import ApiInstance
+
+# Initialize ApiInstance with optional API key and bearer token
+api_instance = ApiInstance(
+    {%- if apikey -%}apikey="{{ apikey }}"{%- endif %}
+    {%- if apikey and bearer -%}, {%- endif %}
+    {%- if bearer -%}bearer="{{ bearer }}"{%- endif %}
+)
+
+class {{ class_name }}:
+    def __init__(self, api_instance=None, base_url="https://api.example.com"):
+        self.api_instance = api_instance if api_instance else api_instance
+        self.base_url = base_url
+
+    {% for method in methods %}
+    def {{ method.name }}(self{% if method.params %}, {{ method.params | map(attribute='name') | join(', ') }}{% endif %}):
+        """{{ method.description }}"""
+        url = f"{self.base_url}{{ method.endpoint }}"
+
+        {% if method.query_params != {} %}
+        params = {
+            {%- for param in method.query_params -%}
+            "{{ param }}": {{ param }}{%- if not loop.last %},{%- endif %}
+            {% endfor %}}
+        {% endif %}
+        {% if method.header != {} %}
+        headers = {
+            {%- for header in method.header -%}
+            "{{ header }}": {{ header }}{%- if not loop.last %},{%- endif %}
+            {% endfor %}}
+        {% endif %}
+        {% if method.formdata and method.formdata != {} %}
+        body = {
+            {%- for param in method.formdata -%}
+            "{{ param }}": {{ param }}{%- if not loop.last -%},{%- endif %}
+            {% endfor %}}
+        {% endif %}
+        return self.api_instance.{{ method.method.lower() }}(url=url
+            {%- if method.query_params -%}, params=params{%- endif -%}
+            {% if method.body or method.formdata %}, json=body{% endif %}
+            {%- if method.header -%}, headers=headers{% endif %})
+
+    {% endfor %}
